@@ -1,0 +1,19 @@
+{
+    "name": "user-scripts-commons",
+    "version": "0.1.0",
+    "description": "油猴脚本通用代码库",
+    "scripts": {
+        "build": "grunt"
+    },
+    "keywords": [
+        "userscript",
+        "tampermonkey",
+        "commons"
+    ],
+    "author": "Arathi of Nebnizilla",
+    "license": "MIT",
+    "devDependencies": {
+        "grunt": "^1.6.1",
+        "grunt-contrib-uglify": "^5.2.2"
+    }
+}
