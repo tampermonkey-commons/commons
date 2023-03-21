@@ -1,8 +1,9 @@
 {
     "name": "user-scripts-commons",
-    "version": "0.1.0",
+    "version": "0.5.0",
     "description": "油猴脚本通用代码库",
     "scripts": {
+        "serve": "http-server -p 30317",
         "build": "grunt"
     },
     "keywords": [
@@ -14,6 +15,7 @@
     "license": "MIT",
     "devDependencies": {
         "grunt": "^1.6.1",
-        "grunt-contrib-uglify": "^5.2.2"
+        "grunt-contrib-uglify": "^5.2.2",
+        "http-server": "^14.1.1"
     }
 }

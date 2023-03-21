@@ -1,41 +1,13 @@
 <html>
     <body>
+        <script src="src/logger.js?230321-1522"></script>
+        <script src="src/user-script-config.js?230321-1449"></script>
+        <script src="src/dynamic-injector.js?230321-1449"></script>
+        <script src="src/skeleton.js?230321-1500"></script>
         <!--
-        <script src="src/logger.js"></script>
-        <script src="src/user-script-config.js"></script>
-        <script src="src/dynamic-inject.js"></script>
+        <script src="dist/commons.min.js?230321-1449"></script>
         -->
-        <script src="dist/commons.min.js"></script>
-        <script>
-            var logger = new Logger()
-            var config = new UserScriptConfig()
-            dynamicInjectVue('app', {
-    template: `<el-button @click="countUp">{{counter}}</el-button>`,
-    data() { return {} },
-    methods: {
-        countUp() {
-            this.$store.commit("countUp")
-        }
-    },
-    computed: {
-        counter() {
-            return this.$store.state.counter
-        }
-    },
-    mounted() {
-        logger.info("Vue App 加载完成")
-    }
-}, {
-    state() { return {
-        counter: 0
-    } },
-    mutations: {
-        countUp(state) {
-            state.counter++
-        }
-    }
-})
 
-        </script>
+        <script src="test/app.js?230321-1449"></script>
     </body>
 </html>

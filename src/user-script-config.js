@@ -1,6 +1,8 @@
 class UserScriptConfig {
-    constructor() {
-        this.version = "0.1.0"
+    constructor(name = "user-script-config") {
+        this.name = name
+        this.version = "0.5.0"
+        this.logger = new Logger(name)
     }
 
     listValues() {
@@ -25,7 +27,6 @@ class UserScriptConfig {
         let v = this.getValue(key, undefined)
         if (v == undefined) {
             v = initValue
-            logger.info(`设置${key}的初始值为：` + v)
             this.setValue(key, initValue)
         }
         return v

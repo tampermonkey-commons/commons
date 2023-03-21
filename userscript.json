@@ -1,0 +1,12 @@
+{
+    "name": "TamperMonkey Commons Tests",
+    "namespace": "com.undsf",
+    "author": "Arathi of Nebnizilla",
+    "version": "0.2.0",
+    "description": "A Commons Library for TamperMonkey script development.",
+    "includes": [],
+    "requires": [],
+    "grants": [],
+    "connects": [],
+    "notes": []
+}

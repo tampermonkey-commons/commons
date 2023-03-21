@@ -1,27 +1,42 @@
+function generateUglifyOptions(components) {
+    let options = {}
+    let srcs = []
+
+    for (let component of components) {
+        let src = `src/${component}.js`
+        let dest = `dist/${component}.min.js`
+        let option = {
+            src: src,
+            dest: dest
+        }
+        options[component] = option
+        srcs.push(src)
+    }
+
+    let component = "commons"
+    let option = {
+        src: srcs,
+        dest: `dist/${component}.min.js`
+    }
+    options[component] = option
+
+    return options
+}
+
 module.exports = function(grunt) {
-    srcs: [ 'src/*.js' ],
+    let components = [ 
+        'logger',
+        'user-script-config',
+        'dynamic-injector',
+        'skeleton'
+    ]
+
+    let usConfig = grunt.file.readJSON('userscript.json')
 
     // 配置信息
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        uglify: {
-            logger: {
-                src: 'src/logger.js',
-                dest: 'dist/logger.min.js',
-            },
-            config: {
-                src: 'src/user-script-config.js',
-                dest: 'dist/user-script-config.min.js',
-            },
-            inject: {
-                src: 'src/dynamic-inject.js',
-                dest: 'dist/dynamic-inject.min.js',
-            },
-            commons: {
-                src: [ 'src/*.js' ],
-                dest: 'dist/commons.min.js'
-            }
-        }
+        uglify: generateUglifyOptions(components)
     })
 
     // 加载uglify
@@ -29,6 +44,4 @@ module.exports = function(grunt) {
 
     // 默认执行任务
     grunt.registerTask('default', ['uglify'])
-
-
 }
