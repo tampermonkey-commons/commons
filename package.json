@@ -1,6 +1,6 @@
 {
     "name": "user-scripts-commons",
-    "version": "0.5.0",
+    "version": "0.6.0",
     "description": "油猴脚本通用代码库",
     "scripts": {
         "serve": "http-server -p 30317",

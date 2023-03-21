@@ -28,7 +28,9 @@ module.exports = function(grunt) {
         'logger',
         'user-script-config',
         'dynamic-injector',
-        'skeleton'
+        'skeleton',
+        'jsonrpc-websocket-client',
+        'aria2-client'
     ]
 
     let usConfig = grunt.file.readJSON('userscript.json')
