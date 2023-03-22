@@ -30,6 +30,10 @@ export default class Logger {
         this.log(console.info, "INFO", text, ...params)
     }
 
+    trace(text, ...params) {
+        this.log(console.trace, "TRACE", text, ...params)
+    }
+
     warn(text, ...params) {
         this.log(console.warn, "WARN", text, ...params)
     }

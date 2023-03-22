@@ -25,5 +25,8 @@
     "connects": [],
     "updateURL": null,
     "downloadURL": null,
-    "nowrap": null
+    "nowrap": null,
+    "changeLogs": [
+        "0.7.2 Logger添加了trace级日志"
+    ]
 }
