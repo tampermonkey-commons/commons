@@ -1,3 +1,4 @@
+import Config from "./Config"
 import { 
     JsonRpcRequest as Request, 
     JsonRpcWebSocketClient as JRWSClient
@@ -21,11 +22,23 @@ export class Task {
 
 export class Aria2Client extends JRWSClient {
     constructor(name, url, token = null) {
-        super("aria2-client", url)
+        super(name, url)
+        this.config = new Config()
         this.token = token
+        this.reset(false)
+
         this.requests = new Map()
         this.responses = new Map()
         this.eventTarget = new EventTarget()
+    }
+
+    reset(create = true) {
+        let aria2 = this.config.getValue("aria2", {})
+        if (aria2.url != null) this.url = aria2.url
+        if (aria2.token != null) this.token = aria2.token
+        if (create) {
+            this.createWebSocket(this.url)
+        }
     }
 
     createParams(needSecret = true) {
@@ -61,7 +74,7 @@ export class Aria2Client extends JRWSClient {
             await this.sleep(10)
             let duration = (new Date()).getTime() - startAt
             if (duration >= timeout) {
-                this.logger.warn("请求(%s)超时", msgId)
+                this.logger.warn("请求(%s)超时，未获取到响应报文", msgId)
                 break
             }
             if (this.responses.has(msgId)) {
@@ -70,6 +83,7 @@ export class Aria2Client extends JRWSClient {
             }
         }
         while (result == null)
+        this.logger.debug("请求(%s)耗时：%d ms", msgId, duration)
         return result
     }
 

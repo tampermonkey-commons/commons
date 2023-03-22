@@ -292,7 +292,7 @@ class JsonRpcWebSocketClient {
     }
 
     onOpen(event) {
-        this.logger.info("与服务端 %s 连接已建立：" + event, this.name)
+        this.logger.info("与服务端 %s 连接已建立", this.name)
         this.status = "connected"
     }
 
@@ -318,7 +318,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "Aria2Client": () => (/* binding */ Aria2Client),
 /* harmony export */   "Task": () => (/* binding */ Task)
 /* harmony export */ });
-/* harmony import */ var _JsonRpcWebSocketClient__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
+/* harmony import */ var _JsonRpcWebSocketClient__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
+
 
 
 class Task {
@@ -337,13 +339,25 @@ class Task {
     }
 }
 
-class Aria2Client extends _JsonRpcWebSocketClient__WEBPACK_IMPORTED_MODULE_0__.JsonRpcWebSocketClient {
+class Aria2Client extends _JsonRpcWebSocketClient__WEBPACK_IMPORTED_MODULE_1__.JsonRpcWebSocketClient {
     constructor(name, url, token = null) {
-        super("aria2-client", url)
+        super(name, url)
+        this.config = new _Config__WEBPACK_IMPORTED_MODULE_0__["default"]()
         this.token = token
+        this.reset(false)
+
         this.requests = new Map()
         this.responses = new Map()
         this.eventTarget = new EventTarget()
+    }
+
+    reset(create = true) {
+        let aria2 = this.config.getValue("aria2", {})
+        if (aria2.url != null) this.url = aria2.url
+        if (aria2.token != null) this.token = aria2.token
+        if (create) {
+            this.createWebSocket(this.url)
+        }
     }
 
     createParams(needSecret = true) {
@@ -366,7 +380,7 @@ class Aria2Client extends _JsonRpcWebSocketClient__WEBPACK_IMPORTED_MODULE_0__.J
         if (id == null) {
             id = this.generateId()
         }
-        let req = new _JsonRpcWebSocketClient__WEBPACK_IMPORTED_MODULE_0__.JsonRpcRequest(method, params, id)
+        let req = new _JsonRpcWebSocketClient__WEBPACK_IMPORTED_MODULE_1__.JsonRpcRequest(method, params, id)
         this.requests.set(id, req)
         this.webSocket.send(JSON.stringify(req))
         return id
@@ -379,7 +393,7 @@ class Aria2Client extends _JsonRpcWebSocketClient__WEBPACK_IMPORTED_MODULE_0__.J
             await this.sleep(10)
             let duration = (new Date()).getTime() - startAt
             if (duration >= timeout) {
-                this.logger.warn("请求(%s)超时", msgId)
+                this.logger.warn("请求(%s)超时，未获取到响应报文", msgId)
                 break
             }
             if (this.responses.has(msgId)) {
@@ -388,6 +402,7 @@ class Aria2Client extends _JsonRpcWebSocketClient__WEBPACK_IMPORTED_MODULE_0__.J
             }
         }
         while (result == null)
+        this.logger.debug("请求(%s)耗时：%d ms", msgId, duration)
         return result
     }
 

@@ -27,6 +27,7 @@
     "downloadURL": null,
     "nowrap": null,
     "changeLogs": [
-        "0.7.2 Logger添加了trace级日志"
+        "0.7.2 Logger添加了trace级日志",
+        "0.7.3 Aria2Client现在会读取配置文件"
     ]
 }

@@ -1,6 +1,6 @@
 {
     "name": "tampermonkey-userscript-commons",
-    "version": "0.7.2",
+    "version": "0.7.3",
     "description": "油猴脚本通用代码库",
     "main": "index.js",
     "scripts": {

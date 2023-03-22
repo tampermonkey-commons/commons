@@ -73,7 +73,7 @@ export class JsonRpcWebSocketClient {
     }
 
     onOpen(event) {
-        this.logger.info("与服务端 %s 连接已建立：" + event, this.name)
+        this.logger.info("与服务端 %s 连接已建立", this.name)
         this.status = "connected"
     }
 
