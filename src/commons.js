@@ -2,7 +2,7 @@ import Logger from './Logger'
 import Config from './Config'
 import DynamicInjector from './DynamicInjector'
 import { JsonRpcRequest, JsonRpcResponse, JsonRpcWebSocketClient } from './JsonRpcWebSocketClient'
-import Aria2Client from './Aria2Client'
+import { Task, Aria2Client } from './Aria2Client'
 import Skeleton from './Skeleton'
 
 export {
@@ -10,6 +10,6 @@ export {
     Config,
     DynamicInjector,
     JsonRpcRequest, JsonRpcResponse, JsonRpcWebSocketClient,
-    Aria2Client,
+    Task, Aria2Client,
     Skeleton
 }

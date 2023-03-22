@@ -3,11 +3,28 @@ import {
     JsonRpcWebSocketClient as JRWSClient
 } from "./JsonRpcWebSocketClient"
 
-export default class Aria2Client extends JRWSClient {
+export class Task {
+    constructor(id, url, dir, fileName, proxy) {
+        this.id = id
+        this.url = url
+        this.dir = dir
+        this.fileName = fileName
+        this.proxy = proxy
+
+        this.msgId = null
+        this.gid = null
+        this.status = null
+        this.totalLength = null
+        this.completedLength = null
+    }
+}
+
+export class Aria2Client extends JRWSClient {
     constructor(name, url, token = null) {
         super("aria2-client", url)
         this.token = token
         this.requests = new Map()
+        this.responses = new Map()
         this.eventTarget = new EventTarget()
     }
 
@@ -34,12 +51,37 @@ export default class Aria2Client extends JRWSClient {
         let req = new Request(method, params, id)
         this.requests.set(id, req)
         this.webSocket.send(JSON.stringify(req))
+        return id
+    }
+
+    async waitResponse(msgId, timeout = 5000) {
+        let result = null
+        let startAt = (new Date()).getTime()
+        do {
+            await this.sleep(10)
+            let duration = (new Date()).getTime() - startAt
+            if (duration >= timeout) {
+                this.logger.warn("请求(%s)超时", msgId)
+                break
+            }
+            if (this.responses.has(msgId)) {
+                let resp = this.responses.get(msgId)
+                result = resp.result
+            }
+        }
+        while (result == null)
+        return result
     }
 
     getVersion() {
         let method = "aria2.getVersion"
         let params = this.createParams(true)
-        this.send(method, params)
+        return this.send(method, params)
+    }
+
+    async getVersionAsync(timeout = 5000) {
+        let msgId = this.getVersion()
+        return await this.waitResponse(msgId, timeout)
     }
 
     addUri(uris, options = {}, position = null) {
@@ -64,7 +106,12 @@ export default class Aria2Client extends JRWSClient {
             params.push(position)
         }
 
-        this.send(method, params)
+        return this.send(method, params)
+    }
+
+    async addUriAsync(uris, options = {}, position = null, timeout = 5000) {
+        let msgId = this.addUri(uris, options, position)
+        return this.waitResponse(msgId, timeout)
     }
     
     addUriWithOptions(uris, dir, out, proxy, position = null) {
@@ -73,7 +120,17 @@ export default class Aria2Client extends JRWSClient {
         if (out != null) options.out = out
         if (proxy != null) options["all-proxy"] = proxy
 
-        this.addUri(uris, options, position)
+        return this.addUri(uris, options, position)
+    }
+
+    addUriByTask(task) {
+        return this.addUriWithOptions(
+            task.url,
+            task.dir,
+            task.fileName,
+            task.proxy,
+            null
+        )
     }
 
     tellStatus(gid, keys = null) {
@@ -84,12 +141,17 @@ export default class Aria2Client extends JRWSClient {
             params.push(keys)
         }
         
-        this.send(method, params)
+        return this.send(method, params)
+    }
+
+    async tellStatusAsync(gid, keys = null, timeout = 5000) {
+        let msgId = this.tellStatus(gid, key)
+        return await this.waitResponse(msgId, timeout)
     }
 
     tellStatusWithDefaultKeys(gid) {
         let keys = ["gid", "status", "totalLength", "completedLength"]
-        this.tellStatus(gid, keys)
+        return this.tellStatus(gid, keys)
     }
 
     onMessage(data, origin, lastEventId, source, ports) {
@@ -137,6 +199,7 @@ export default class Aria2Client extends JRWSClient {
             return
         }
         
+        this.responses.set(resp.id, resp)
         let req = this.requests.get(resp.id)
         this.logger.debug("对应的请求报文：" + req)
     }

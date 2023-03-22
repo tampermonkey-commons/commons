@@ -311,16 +311,34 @@ class JsonRpcWebSocketClient {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ Aria2Client)
+/* harmony export */   "Aria2Client": () => (/* binding */ Aria2Client),
+/* harmony export */   "Task": () => (/* binding */ Task)
 /* harmony export */ });
 /* harmony import */ var _JsonRpcWebSocketClient__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
 
+
+class Task {
+    constructor(id, url, dir, fileName, proxy) {
+        this.id = id
+        this.url = url
+        this.dir = dir
+        this.fileName = fileName
+        this.proxy = proxy
+
+        this.msgId = null
+        this.gid = null
+        this.status = null
+        this.totalLength = null
+        this.completedLength = null
+    }
+}
 
 class Aria2Client extends _JsonRpcWebSocketClient__WEBPACK_IMPORTED_MODULE_0__.JsonRpcWebSocketClient {
     constructor(name, url, token = null) {
         super("aria2-client", url)
         this.token = token
         this.requests = new Map()
+        this.responses = new Map()
         this.eventTarget = new EventTarget()
     }
 
@@ -347,12 +365,37 @@ class Aria2Client extends _JsonRpcWebSocketClient__WEBPACK_IMPORTED_MODULE_0__.J
         let req = new _JsonRpcWebSocketClient__WEBPACK_IMPORTED_MODULE_0__.JsonRpcRequest(method, params, id)
         this.requests.set(id, req)
         this.webSocket.send(JSON.stringify(req))
+        return id
+    }
+
+    async waitResponse(msgId, timeout = 5000) {
+        let result = null
+        let startAt = (new Date()).getTime()
+        do {
+            await this.sleep(10)
+            let duration = (new Date()).getTime() - startAt
+            if (duration >= timeout) {
+                this.logger.warn("请求(%s)超时", msgId)
+                break
+            }
+            if (this.responses.has(msgId)) {
+                let resp = this.responses.get(msgId)
+                result = resp.result
+            }
+        }
+        while (result == null)
+        return result
     }
 
     getVersion() {
         let method = "aria2.getVersion"
         let params = this.createParams(true)
-        this.send(method, params)
+        return this.send(method, params)
+    }
+
+    async getVersionAsync(timeout = 5000) {
+        let msgId = this.getVersion()
+        return await this.waitResponse(msgId, timeout)
     }
 
     addUri(uris, options = {}, position = null) {
@@ -377,7 +420,12 @@ class Aria2Client extends _JsonRpcWebSocketClient__WEBPACK_IMPORTED_MODULE_0__.J
             params.push(position)
         }
 
-        this.send(method, params)
+        return this.send(method, params)
+    }
+
+    async addUriAsync(uris, options = {}, position = null, timeout = 5000) {
+        let msgId = this.addUri(uris, options, position)
+        return this.waitResponse(msgId, timeout)
     }
     
     addUriWithOptions(uris, dir, out, proxy, position = null) {
@@ -386,7 +434,17 @@ class Aria2Client extends _JsonRpcWebSocketClient__WEBPACK_IMPORTED_MODULE_0__.J
         if (out != null) options.out = out
         if (proxy != null) options["all-proxy"] = proxy
 
-        this.addUri(uris, options, position)
+        return this.addUri(uris, options, position)
+    }
+
+    addUriByTask(task) {
+        return this.addUriWithOptions(
+            task.url,
+            task.dir,
+            task.fileName,
+            task.proxy,
+            null
+        )
     }
 
     tellStatus(gid, keys = null) {
@@ -397,12 +455,17 @@ class Aria2Client extends _JsonRpcWebSocketClient__WEBPACK_IMPORTED_MODULE_0__.J
             params.push(keys)
         }
         
-        this.send(method, params)
+        return this.send(method, params)
+    }
+
+    async tellStatusAsync(gid, keys = null, timeout = 5000) {
+        let msgId = this.tellStatus(gid, key)
+        return await this.waitResponse(msgId, timeout)
     }
 
     tellStatusWithDefaultKeys(gid) {
         let keys = ["gid", "status", "totalLength", "completedLength"]
-        this.tellStatus(gid, keys)
+        return this.tellStatus(gid, keys)
     }
 
     onMessage(data, origin, lastEventId, source, ports) {
@@ -450,6 +513,7 @@ class Aria2Client extends _JsonRpcWebSocketClient__WEBPACK_IMPORTED_MODULE_0__.J
             return
         }
         
+        this.responses.set(resp.id, resp)
         let req = this.requests.get(resp.id)
         this.logger.debug("对应的请求报文：" + req)
     }
@@ -666,14 +730,15 @@ var __webpack_exports__ = {};
 (() => {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Aria2Client": () => (/* reexport safe */ _Aria2Client__WEBPACK_IMPORTED_MODULE_4__["default"]),
+/* harmony export */   "Aria2Client": () => (/* reexport safe */ _Aria2Client__WEBPACK_IMPORTED_MODULE_4__.Aria2Client),
 /* harmony export */   "Config": () => (/* reexport safe */ _Config__WEBPACK_IMPORTED_MODULE_1__["default"]),
 /* harmony export */   "DynamicInjector": () => (/* reexport safe */ _DynamicInjector__WEBPACK_IMPORTED_MODULE_2__["default"]),
 /* harmony export */   "JsonRpcRequest": () => (/* reexport safe */ _JsonRpcWebSocketClient__WEBPACK_IMPORTED_MODULE_3__.JsonRpcRequest),
 /* harmony export */   "JsonRpcResponse": () => (/* reexport safe */ _JsonRpcWebSocketClient__WEBPACK_IMPORTED_MODULE_3__.JsonRpcResponse),
 /* harmony export */   "JsonRpcWebSocketClient": () => (/* reexport safe */ _JsonRpcWebSocketClient__WEBPACK_IMPORTED_MODULE_3__.JsonRpcWebSocketClient),
 /* harmony export */   "Logger": () => (/* reexport safe */ _Logger__WEBPACK_IMPORTED_MODULE_0__["default"]),
-/* harmony export */   "Skeleton": () => (/* reexport safe */ _Skeleton__WEBPACK_IMPORTED_MODULE_5__["default"])
+/* harmony export */   "Skeleton": () => (/* reexport safe */ _Skeleton__WEBPACK_IMPORTED_MODULE_5__["default"]),
+/* harmony export */   "Task": () => (/* reexport safe */ _Aria2Client__WEBPACK_IMPORTED_MODULE_4__.Task)
 /* harmony export */ });
 /* harmony import */ var _Logger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2);
