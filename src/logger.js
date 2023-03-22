@@ -1,6 +1,5 @@
-class Logger {
+export default class Logger {
     constructor(name = "logger") {
-        this.version = "0.5.0"
         this.name = name
     }
 

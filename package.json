@@ -1,21 +1,22 @@
 {
-    "name": "user-scripts-commons",
-    "version": "0.6.0",
+    "name": "tampermonkey-userscript-commons",
+    "version": "0.7.0",
     "description": "油猴脚本通用代码库",
+    "main": "index.js",
     "scripts": {
-        "serve": "http-server -p 30317",
-        "build": "grunt"
+        "build": "webpack --config webpack.config.js",
+        "serve": "http-server -p 30322 -c-1",
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
-    "keywords": [
-        "userscript",
-        "tampermonkey",
-        "commons"
-    ],
     "author": "Arathi of Nebnizilla",
     "license": "MIT",
     "devDependencies": {
-        "grunt": "^1.6.1",
-        "grunt-contrib-uglify": "^5.2.2",
-        "http-server": "^14.1.1"
+        "@babel/core": "^7.21.3",
+        "@babel/preset-env": "^7.20.2",
+        "babel-loader": "^9.1.2",
+        "http-server": "^14.1.1",
+        "terser-webpack-plugin": "^5.3.7",
+        "webpack": "^5.76.2",
+        "webpack-cli": "^5.0.1"
     }
 }

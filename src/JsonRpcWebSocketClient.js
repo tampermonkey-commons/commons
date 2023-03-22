@@ -1,4 +1,6 @@
-class JsonRpcRequest {
+import Logger from './Logger'
+
+export class JsonRpcRequest {
     constructor(method, params, id) {
         this.jsonrpc = "2.0"
         this.method = method
@@ -7,7 +9,7 @@ class JsonRpcRequest {
     }
 }
 
-class JsonRpcResponse {
+export class JsonRpcResponse {
     constructor(result, id) {
         this.jsonrpc = "2.0"
         this.result = result
@@ -16,9 +18,8 @@ class JsonRpcResponse {
     }
 }
 
-class JsonRpcWebSocketClient {
+export class JsonRpcWebSocketClient {
     constructor(name, url) {
-        this.version = "0.6.0"
         this.name = name
         this.url = url
         this.webSocket = null
@@ -88,4 +89,3 @@ class JsonRpcWebSocketClient {
         this.logger.info("与服务端 %s 通信发生错误：" + event, this.name)
     }
 }
-

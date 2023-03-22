@@ -1,6 +1,7 @@
-class DynamicInjector {
+import Logger from './Logger'
+
+export default class DynamicInjector {
     constructor() {
-        this.version = "0.5.0"
         this.defaultCDN = "https://cdn.jsdelivr.net/npm/"
         this.logger = new Logger("dynamic-injector")
     }

@@ -1,12 +1,29 @@
 {
-    "name": "TamperMonkey Commons Tests",
-    "namespace": "com.undsf",
+    "name": "commons-test",
+    "namespace": "com.undsf.tmus.commons",
+    "copyright": null,
+    "version": null,
+    "description": "油猴通用脚本测试",
+    "icon": null,
+    "grants": [
+        "unsafeWindow",
+        "GM_info",
+        "GM_addStyle",
+        "GM_listValues",
+        "GM_setValue",
+        "GM_getValue",
+        "GM_deleteValue"
+    ],
     "author": "Arathi of Nebnizilla",
-    "version": "0.2.0",
-    "description": "A Commons Library for TamperMonkey script development.",
-    "includes": [],
+    "homepage": null,
     "requires": [],
-    "grants": [],
+    "resources": [],
+    "includes": [],
+    "matches": [],
+    "excludes": [],
+    "runAt": null,
     "connects": [],
-    "notes": []
+    "updateURL": null,
+    "downloadURL": null,
+    "nowrap": null
 }

@@ -1,33 +1,25 @@
-class Skeleton {
+export default class Skeleton {
     constructor(options) {
-        this.name = options.hasOwnProperty("name") ? options.name : GM_info.script.name
-        this.version = options.hasOwnProperty("version") ? options.version : GM_info.script.version
-        this.optionsUrl = options.hasOwnProperty("url") ? options.url : null
-
         this.logger = new Logger(this.name)
         this.injector = new DynamicInjector()
 
-        // 注入挂载点和样式
-        this.appNodeId = null
-        this.injectStyles = null
+        this.name = (options.name != null) ? options.name : GM_info.script.name
+        this.version = (options.version != null) ? options.version : GM_info.script.version
+        this.optionsUrl = (options.url != null) ? options.url : null
 
-        // 注入vue、options
-        this.vueVersion = options.hasOwnProperty("vue") ? options.vue : null
+        this.vueVersion = (options.vue != null) ? options.vue : null
+        this.elementVersion = (options.element != null) ? options.element : null
+        this.vuexVersion = (options.vuex != null) ? options.vuex : null
+
+        this.reloadOptions(options)
+        
         this.vue = null
-        this.vueOptions = null
-        this.vueApp = null
-
-        // 注入element
-        this.elementVersion = options.hasOwnProperty("element") ? options.element : null
         this.element = null
-
-        // 注入vuex、options
-        this.vuexVersion = options.hasOwnProperty("vuex") ? options.vuex : null
         this.vuex = null
-        this.storeOptions = null
+        this.vueApp = null
     }
 
-    async dynamicInjectVue() {
+    async dynamicInjectVueComponents() {
         let injectSucc = false
         let app = this
 
@@ -35,7 +27,7 @@ class Skeleton {
             injectSucc = await this.injector.dynamicInject("vue", this.vueVersion, "/dist/vue.global.prod.js", 5000, () => {
                 if (typeof Vue != 'undefined') {
                     app.vue = Vue
-                    app.logger.info("Vue %s Loaded.", app.vue.version)
+                    app.logger.info("Vue %s 加载完成", app.vue.version)
                     return true
                 }
             })
@@ -46,7 +38,7 @@ class Skeleton {
             injectSucc = await this.injector.dynamicInject("element-plus", this.elementVersion, "/dist/index.full.min.js", 5000, () => {
                 if (typeof ElementPlus != 'undefined') {
                     app.element = ElementPlus
-                    app.logger.info("Element Plus %s Loaded.", app.element.version)
+                    app.logger.info("Element Plus %s 加载完成", app.element.version)
                     return true
                 }
             })
@@ -59,7 +51,7 @@ class Skeleton {
             injectSucc = await this.injector.dynamicInject("vuex", this.vuexVersion, "/dist/vuex.global.min.js", 5000, () => {
                 if (typeof Vuex != 'undefined') {
                     app.vuex = Vuex
-                    app.logger.info("Vuex %s Loaded.", app.vuex.version)
+                    app.logger.info("Vuex %s 加载完成", app.vuex.version)
                     return true
                 }
             })
@@ -71,53 +63,64 @@ class Skeleton {
 
     async dynamicInjectOptions(url, checkLoadedCallback = undefined) {
         if (checkLoadedCallback == undefined) {
-            let app = this
-            checkLoadedCallback = () => {
-                let loaded = 0
-                if (typeof appNodeId != 'undefined') {
-                    app.appNodeId = appNodeId
-                    loaded++
-                }
-                if (typeof vueAppOptions != 'undefined') {
-                    app.vueOptions = vueAppOptions
-                    loaded++
-                }
-                if (typeof storeOptions != 'undefined') {
-                    app.storeOptions = storeOptions
-                    loaded++
-                }
-                if (typeof injectStyles != 'undefined') {
-                    app.injectStyles = injectStyles
-                    loaded++
-                }
-                return loaded > 0
-            }
+            checkLoadedCallback = this.checkOptionsLoadedCallback
         }
 
         let injectSucc = await this.injector.dynamicInjectByUrl(url, 5000, checkLoadedCallback)
         return injectSucc
     }
 
+    checkOptionsLoadedCallback() {
+        if (typeof skeletonOptions != 'undefined') {
+            this.reloadOptions(skeletonOptions)
+            return true
+        }
+        return false
+    }
+
+    reloadOptions(skeletonOptions) {
+        this.appNodeId = (skeletonOptions.appNodeId != null) ? skeletonOptions.appNodeId : null
+        this.template = (skeletonOptions.template != null) ? skeletonOptions.template : null
+        this.styles = (skeletonOptions.styles != null) ? skeletonOptions.styles : null
+        this.storeOptions = (skeletonOptions.storeOptions != null) ? skeletonOptions.storeOptions : null
+        this.appOptions = (skeletonOptions.appOptions != null) ? skeletonOptions.appOptions : null
+    }
+
     async createVueApp(optionsUrl) {
         let injectSucc = await this.dynamicInjectVue()
         if (!injectSucc) return false
 
-        injectSucc = await this.dynamicInjectOptions(optionsUrl)
-        if (!injectSucc) return false
+        if (optionsUrl != null) {
+            injectSucc = await this.dynamicInjectOptions(optionsUrl)
+            if (!injectSucc) return false
+        }
+
+        // 注入app节点
+        let appNode = null
+        if (this.template != null) {
+            appNode = document.createElement("div")
+            appNode.outerHTML = this.template
+            document.body.appendChild(appNode)
+        }
         
-        let appNode = document.getElementById(this.appNodeId)
+        // 再检查一次，如果没有就创建一个空的
+        appNode = document.getElementById(this.appNodeId)
         if (appNode == null) {
             appNode = document.createElement("div")
             appNode.id = this.appNodeId
             document.body.appendChild(appNode)
         }
-        // TODO 添加样式
+
+        // 注入app样式
+        if (this.styles != null) {
+            GM_addStyle(this.styles)
+        }
 
         let app = this.vue.createApp(this.vueOptions)
         
         if (this.element != null) {
             app.use(this.element)
-            // TODO message
+            app.provide('$message', element.ElMessage)
         }
 
         if (this.storeOptions != null) {

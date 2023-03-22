@@ -1,4 +1,9 @@
-class Aria2Client extends JsonRpcWebSocketClient {
+import { 
+    JsonRpcRequest as Request, 
+    JsonRpcWebSocketClient as JRWSClient
+} from "./JsonRpcWebSocketClient"
+
+export default class Aria2Client extends JRWSClient {
     constructor(name, url, token = null) {
         super("aria2-client", url)
         this.token = token
@@ -26,7 +31,7 @@ class Aria2Client extends JsonRpcWebSocketClient {
         if (id == null) {
             id = this.generateId()
         }
-        let req = new JsonRpcRequest(method, params, id)
+        let req = new Request(method, params, id)
         this.requests.set(id, req)
         this.webSocket.send(JSON.stringify(req))
     }
@@ -88,14 +93,6 @@ class Aria2Client extends JsonRpcWebSocketClient {
     }
 
     onMessage(data, origin, lastEventId, source, ports) {
-        // this.logger.debug("写收到来自服务端 %s 的报文 data=%s origin=%s lastEventId=%d source=%s ports=%s", 
-        //     this.name, 
-        //     data,
-        //     origin,
-        //     lastEventId,
-        //     source,
-        //     ports
-        // )
         let recvMsg = JSON.parse(data)
 
         let errorMsg = false

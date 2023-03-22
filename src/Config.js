@@ -1,7 +1,6 @@
-class UserScriptConfig {
-    constructor(name = "user-script-config") {
+export default class Config {
+    constructor(name = "config") {
         this.name = name
-        this.version = "0.5.0"
         this.logger = new Logger(name)
     }
 
